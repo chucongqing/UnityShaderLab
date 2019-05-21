@@ -164,14 +164,12 @@ Shader "Custom/EnvRefact_1" {
                     indirectLight.diffuse += max(0, ShadeSH9(float4(i.normal, 1)));
                     float3 reflectionDir = reflect(-viewDir, i.normal);
 
-
                     // float roughness = 1 - _Smoothness;
                     // roughness *= 1.7 - 0.7 * roughness;
                     // float4 envSample = UNITY_SAMPLE_TEXCUBE_LOD(
                     // 	unity_SpecCube0, reflectionDir, roughness * UNITY_SPECCUBE_LOD_STEPS
                     // );
                     // indirectLight.specular = DecodeHDR(envSample, unity_SpecCube0_HDR);
-
                     Unity_GlossyEnvironmentData envData;
                     envData.roughness = 1 - _Smoothness;
                     envData.reflUVW = reflectionDir;
@@ -184,10 +182,7 @@ Shader "Custom/EnvRefact_1" {
             }
 
             void InitializeFragmentNormal(inout Interpolators i) {
-                // i.normal.xy = tex2D(_NormalMap, i.uv).wy * 2 - 1;
-                // i.normal.xy *= _BumpScale;
-                // i.normal.z = sqrt(1 - saturate(dot(i.normal.xy, i.normal.xy)));
-
+               
                 float3 tangentSpaceNormal = UnpackScaleNormal(tex2D(_NormalMap, i.uv), _BumpScale);
                 
                 #if defined(BINORMAL_PER_FRAGMENT)
@@ -196,7 +191,6 @@ Shader "Custom/EnvRefact_1" {
                     float3 binormal = i.binormal;
                 #endif
                 
-
                 i.normal = normalize(
                     tangentSpaceNormal.x * i.tangent +
                     tangentSpaceNormal.y * binormal +
@@ -207,10 +201,7 @@ Shader "Custom/EnvRefact_1" {
             float4 MyFragmentProgram (Interpolators i) : SV_TARGET {
                 InitializeFragmentNormal(i);
                 
-                
                 float3 viewDir = normalize(_WorldSpaceCameraPos - i.worldPos);
-
-                
 
                 float3 albedo = tex2D(_MainTex, i.uv).rgb * _Tint.rgb;
 
@@ -224,7 +215,6 @@ Shader "Custom/EnvRefact_1" {
                 oneMinusReflectivity , _Smoothness,
                 i.normal, viewDir,
                 CreateLight(i), CreateIndirectLight(i, viewDir));
-
 
                 float3 reflectVec = reflect(-viewDir, i.normal);
                 float4 cubeColor = texCUBE(_CubeMap, reflectVec);
