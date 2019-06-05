@@ -5,6 +5,7 @@ Shader "Custom/My First Light Shader" {
 	Properties {
 		_Tint ("Tint", Color) = (1, 1, 1, 1)
 		_MainTex ("Texture", 2D) = "white" {}
+
 		// _SpecularTint ("Specular", Color) = (0.5, 0.5, 0.5)
 
 		//One detail is that the metallic slider itself is supposed to be in gamma space. 
@@ -16,11 +17,13 @@ Shader "Custom/My First Light Shader" {
 
 
 		_Smoothness ("Smoothness", Range(0, 1)) = 0.5
+
 	}
 
 	SubShader {
 
 		Pass {
+
 
 			Tags {
 				"LightMode" = "ForwardBase"
@@ -32,6 +35,7 @@ Shader "Custom/My First Light Shader" {
 			#pragma vertex MyVertexProgram
 			#pragma fragment MyFragmentProgram
 
+
 		//	#include "UnityCG.cginc"
 			#include "UnityStandardBRDF.cginc" // 已经包含了 unitycg.cginc
 			#include "UnityStandardUtils.cginc"
@@ -41,12 +45,15 @@ Shader "Custom/My First Light Shader" {
 			// float4 _SpecularTint;
  			float _Metallic;
 
+
 			sampler2D _MainTex;
 			float4 _MainTex_ST;
 
 			struct VertexData {
 				float4 position : POSITION;
+
 				float3 normal : NORMAL;
+
 				float2 uv : TEXCOORD0;
 			};
 
@@ -54,12 +61,15 @@ Shader "Custom/My First Light Shader" {
 				float4 position : SV_POSITION;
 				float2 uv : TEXCOORD0;
 				float3 normal : TEXCOORD1;
+
 				float3 worldPos : TEXCOORD2;
+
 			};
 
 			Interpolators MyVertexProgram (VertexData v) {
 				Interpolators i;
 				i.position = UnityObjectToClipPos(v.position);
+
 				i.worldPos = mul(unity_ObjectToWorld, v.position);
 				//i.normal = mul(
 				//	transpose((float3x3)unity_WorldToObject),
@@ -67,11 +77,13 @@ Shader "Custom/My First Light Shader" {
 				//);
 				//等同于上方，但是有更好的编译后效率
 				i.normal = UnityObjectToWorldNormal(v.normal);
+
 				i.uv = TRANSFORM_TEX(v.uv, _MainTex);
 				return i;
 			}
 
 			float4 MyFragmentProgram (Interpolators i) : SV_TARGET {
+
 				i.normal = normalize(i.normal);
 				float3 lightDir = _WorldSpaceLightPos0.xyz;
 				float3 viewDir = normalize(_WorldSpaceCameraPos - i.worldPos);
@@ -113,6 +125,7 @@ Shader "Custom/My First Light Shader" {
 				);
 
 				return float4(diffuse + specular,1);
+
 			}
 
 			ENDCG
